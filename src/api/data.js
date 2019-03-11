@@ -90,4 +90,21 @@ dataEndpoints.get('/players', (req, res) => {
 		});
 });
 
+dataEndpoints.get('/players/:id', (req, res) => {
+	const playerId = req.params.id;
+	axios.get(`https://data.nba.net/prod/v1/2018/players/${ playerId }_profile.json`)
+		.then(({ data }) => {
+			res.send(data.league.standard);
+		})
+		.catch(error => {
+			const customError = {
+				status: false,
+				data: {
+					msg: 'Problem with fetching active players'
+				}
+			}
+			res.send(customError);
+		});
+});
+
 // ^ .nugget player of the game w każdym obiekcie tego repsonsu, wiec łatwo znalezc jakiegos player of the day moze

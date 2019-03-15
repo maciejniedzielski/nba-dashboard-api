@@ -38,6 +38,7 @@ dataEndpoints.get('/teams', (req, res) => {
 
 dataEndpoints.get('/teams/:id', (req,res) => {	
 	const teamId = req.params.id;
+
 		axios.all([
 			axios.get(`http://data.nba.net/prod/v1/2018/teams.json`),
 			axios.get('http://data.nba.net/prod/2018/teams_config.json')
@@ -52,6 +53,25 @@ dataEndpoints.get('/teams/:id', (req,res) => {
 				status: false,
 				data: {
 					msg: 'Team does not exist'
+				}
+			}
+			res.send(customError);
+		});
+});
+
+dataEndpoints.get('/teams/roster/:nickname', (req, res) => {
+	const teamNickname = req.params.nickname;
+	
+	axios.get(`http://data.nba.net/json/cms/noseason/team/${ teamNickname }/roster.json`)
+	// axios.get(`http://data.nba.net/prod/v1/2016/teams/${ teamId }/roster.json`)
+		.then(({ data }) => {
+			res.send(data.sports_content.roster)
+		})
+		.catch(error => {
+			const customError = {
+				status: false,
+				data: {
+					msg: 'Problem with fetching team roster'
 				}
 			}
 			res.send(customError);

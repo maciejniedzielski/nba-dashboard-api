@@ -44,7 +44,7 @@ dataEndpoints.get('/teams/:id', (req,res) => {
 			axios.get('http://data.nba.net/prod/2018/teams_config.json')
 		]).then(([teamData, teamConfigData]) => {
 			const filteredTeamData = teamData.data.league.standard.find(team => team.teamId == teamId);
-			const filteredTeamConfigData = 	teamConfigData.data.teams.config.find(team => team.teamId == teamId)
+			const filteredTeamConfigData = teamConfigData.data.teams.config.find(team => team.teamId == teamId)
 			const resultData = Object.assign(filteredTeamData, filteredTeamConfigData);
 			res.send(resultData);
 		})
@@ -59,6 +59,27 @@ dataEndpoints.get('/teams/:id', (req,res) => {
 		});
 });
 
+dataEndpoints.get('/team/getConfigData/:teamTricode', (req,res) => {	
+	const teamTricode = req.params.teamTricode;
+	
+	axios.get('http://data.nba.net/prod/2018/teams_config.json')
+		.then(teamConfigData => {
+			const filteredTeamConfigData = teamConfigData.data.teams.config.find(team => team.tricode == teamTricode)
+			res.send(filteredTeamConfigData);
+		})
+		.catch(error => {
+			const customError = {
+				status: false,
+				data: {
+					msg: 'Team does not exist'
+				}
+			}
+			res.send(customError);
+		});
+});
+
+
+// TODO:  zmienić na samo /roster/:teamNickame
 dataEndpoints.get('/teams/roster/:nickname', (req, res) => {
 	const teamNickname = req.params.nickname;
 	
@@ -110,21 +131,43 @@ dataEndpoints.get('/players', (req, res) => {
 		});
 });
 
-dataEndpoints.get('/players/:id', (req, res) => {
-	const playerId = req.params.id;
-	axios.get(`https://data.nba.net/prod/v1/2018/players/${ playerId }_profile.json`)
+dataEndpoints.get('/players/:playerId', (req, res) => {
+	const playerId = req.params.playerId;
+
+	axios.get(`https://www.nba.com/players/active_players.json`)
 		.then(({ data }) => {
-			res.send(data.league.standard);
+			const filteredPlayer = data.find(player => +player.personId == +playerId);
+			res.send(filteredPlayer);
 		})
 		.catch(error => {
 			const customError = {
 				status: false,
 				data: {
-					msg: 'Problem with fetching active players'
+					msg: 'Problem with getting player data'
 				}
 			}
 			res.send(customError);
 		});
 });
+
+
+// TO DO STATSÓW PRZENIEŚĆ
+
+// dataEndpoints.get('/players/:id', (req, res) => {
+// 	const playerId = req.params.id;
+// 	axios.get(`https://data.nba.net/prod/v1/2018/players/${ playerId }_profile.json`)
+// 		.then(({ data }) => {
+// 			res.send(data.league.standard);
+// 		})
+// 		.catch(error => {
+// 			const customError = {
+// 				status: false,
+// 				data: {
+// 					msg: 'Problem with fetching active players'
+// 				}
+// 			}
+// 			res.send(customError);
+// 		});
+// });
 
 // ^ .nugget player of the game w każdym obiekcie tego repsonsu, wiec łatwo znalezc jakiegos player of the day moze

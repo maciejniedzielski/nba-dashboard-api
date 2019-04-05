@@ -150,6 +150,24 @@ dataEndpoints.get('/players/:playerId', (req, res) => {
 		});
 });
 
+dataEndpoints.get('/players/playerProfile/:playerId', (req, res) => {
+	const playerId = req.params.playerId;
+
+	axios.get(`http://data.nba.net/prod/v1/2018/players/${playerId}_profile.json`)
+		.then(({ data }) => {
+			res.send(data.league.standard.stats);
+		})
+		.catch(error => {
+			const customError = {
+				status: false,
+				data: {
+					msg: 'Sorry! There are no stats available for this player.'
+				}
+			}
+			res.send(customError);
+		});
+});
+
 
 // TO DO STATSÓW PRZENIEŚĆ
 
